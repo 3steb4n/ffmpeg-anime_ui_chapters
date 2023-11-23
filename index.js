@@ -40,27 +40,33 @@ async function processRow(row) {
     const createAnimeFolders = async () => {
         process.chdir(`${baseDir}`);
     
-        if (fs.existsSync(`${row.title}`)) {
+        if (folderExists(`${row.title}`)) {
             process.chdir(`${baseDir}/${row.title}`);
-            fs.mkdirSync(`${row.number}`);
-            process.chdir(`${baseDir}/${row.title}/${row.number}`);
-        
-            calidadesCarpeta = `${baseDir}/${row.title}/${row.number}`;
+            if (folderExists(`${row.number}`)) {
+                process.chdir(`${baseDir}/${row.title}/${row.number}`);
+            } else {
+                fs.mkdirSync(`${row.number}`);
+                process.chdir(`${baseDir}/${row.title}/${row.number}`);
+            }
         } else {
             fs.mkdirSync(`${row.title}`);
             process.chdir(`${baseDir}/${row.title}`);
-        
-            fs.mkdirSync(`${row.number}`);
-            process.chdir(`${baseDir}/${row.title}/${row.number}`);
-        
-            calidadesCarpeta = `${baseDir}/${row.title}/${row.number}`;
+            if (folderExists(`${row.number}`)) {
+                process.chdir(`${baseDir}/${row.title}/${row.number}`);
+            } else {
+                fs.mkdirSync(`${row.number}`);
+                process.chdir(`${baseDir}/${row.title}/${row.number}`);
+            }
         }
-    
-    
+
+        calidadesCarpeta = `${baseDir}/${row.title}/${row.number}`;
+
         console.log(`Carpeta creada: ${baseDir}`);
     
         for (const value of calidades) {
-            fs.mkdirSync(`${value}`);
+            if (!folderExists(`${value}`)) {
+                fs.mkdirSync(`${value}`);
+            }
         }
 
         console.log(`Cambió al directorio: ${baseDir}`);
@@ -115,6 +121,10 @@ async function processRow(row) {
     await createAnimeFolders();
     await calidadesIndex();
     await createMasterFile();
+}
+
+function folderExists(folderPath) {
+    return fs.existsSync(folderPath);
 }
 
 //Función principal
